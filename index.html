@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Granite Measurement Calculator</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    padding:40px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th,td{
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#f0f3f8;
+}
+
+input{
+    width:120px;
+    padding:6px;
+}
+
+button{
+    padding:10px 16px;
+    border:none;
+    background:#2f64ff;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1e4de0;
+}
+
+.deleteBtn{
+    background:#ff4b4b;
+}
+
+.totalBox{
+    margin-top:30px;
+    font-size:28px;
+    font-weight:bold;
+    text-align:right;
+    color:#2f64ff;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Granite Measurement Calculator</h1>
+<p>Formula: (Column A × Column B) ÷ 144</p>
+
+<table id="calcTable">
+<thead>
+<tr>
+<th>#</th>
+<th>Column A (inches)</th>
+<th>Column B (inches)</th>
+<th>Column C (sq ft)</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="tableBody">
+<tr>
+<td>1</td>
+<td><input type="number" oninput="calculate()"></td>
+<td><input type="number" oninput="calculate()"></td>
+<td class="result">0.00</td>
+<td><button class="deleteBtn" onclick="deleteRow(this)">Delete</button></td>
+</tr>
+</tbody>
+
+</table>
+
+<br>
+
+<button onclick="addRow()">+ Add Measurement Row</button>
+
+<div class="totalBox">
+Total Square Footage: <span id="total">0.00</span> sq ft
+</div>
+
+</div>
+
+
+<script>
+
+function calculate(){
+
+    let rows = document.querySelectorAll("#tableBody tr")
+    let total = 0
+
+    rows.forEach(row => {
+
+        let A = row.children[1].children[0].value
+        let B = row.children[2].children[0].value
+
+        A = parseFloat(A) || 0
+        B = parseFloat(B) || 0
+
+        let C = (A * B) / 144
+
+        row.querySelector(".result").innerText = C.toFixed(2)
+
+        total += C
+    })
+
+    document.getElementById("total").innerText = total.toFixed(2)
+}
+
+function addRow(){
+
+    let table = document.getElementById("tableBody")
+    let rowCount = table.rows.length + 1
+
+    let row = table.insertRow()
+
+    row.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="number" oninput="calculate()"></td>
+        <td><input type="number" oninput="calculate()"></td>
+        <td class="result">0.00</td>
+        <td><button class="deleteBtn" onclick="deleteRow(this)">Delete</button></td>
+    `
+}
+
+function deleteRow(btn){
+
+    let row = btn.parentNode.parentNode
+    row.remove()
+
+    updateRowNumbers()
+    calculate()
+}
+
+function updateRowNumbers(){
+
+    let rows = document.querySelectorAll("#tableBody tr")
+
+    rows.forEach((row,index)=>{
+        row.children[0].innerText = index + 1
+    })
+}
+
+</script>
+
+</body>
+</html>
