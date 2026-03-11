@@ -5,69 +5,67 @@
 <title>Granite Measurement Calculator</title>
 
 <style>
+
 body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    padding:40px;
+font-family: Arial;
+background:#f4f6f9;
+padding:40px;
 }
 
 .container{
-    max-width:900px;
-    margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+max-width:900px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-h1{
-    margin-bottom:5px;
+h2{
+margin-bottom:5px;
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
 }
 
 th,td{
-    padding:12px;
-    text-align:center;
+padding:10px;
+text-align:center;
 }
 
 th{
-    background:#f0f3f8;
+background:#eef2f7;
 }
 
 input{
-    width:120px;
-    padding:6px;
+padding:6px;
+width:120px;
 }
 
 button{
-    padding:10px 16px;
-    border:none;
-    background:#2f64ff;
-    color:white;
-    border-radius:6px;
-    cursor:pointer;
+padding:8px 16px;
+background:#2f64ff;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
 }
 
 button:hover{
-    background:#1e4de0;
+background:#1c4ed8;
 }
 
-.deleteBtn{
-    background:#ff4b4b;
+.total{
+margin-top:25px;
+font-size:28px;
+text-align:right;
+font-weight:bold;
+color:#2f64ff;
 }
 
-.totalBox{
-    margin-top:30px;
-    font-size:28px;
-    font-weight:bold;
-    text-align:right;
-    color:#2f64ff;
-}
 </style>
 
 </head>
@@ -76,100 +74,114 @@ button:hover{
 
 <div class="container">
 
-<h1>Granite Measurement Calculator</h1>
+<h2>Granite Measurement Calculator</h2>
 <p>Formula: (Column A × Column B) ÷ 144</p>
 
-<table id="calcTable">
+<label>Enter Number of Rows:</label>
+<input type="number" id="rowCount">
+<button onclick="generateRows()">Generate</button>
+
+<table>
+
 <thead>
 <tr>
 <th>#</th>
 <th>Column A (inches)</th>
 <th>Column B (inches)</th>
 <th>Column C (sq ft)</th>
-<th>Action</th>
 </tr>
 </thead>
 
-<tbody id="tableBody">
-<tr>
-<td>1</td>
-<td><input type="number" oninput="calculate()"></td>
-<td><input type="number" oninput="calculate()"></td>
-<td class="result">0.00</td>
-<td><button class="deleteBtn" onclick="deleteRow(this)">Delete</button></td>
-</tr>
-</tbody>
+<tbody id="tableBody"></tbody>
 
 </table>
 
-<br>
-
-<button onclick="addRow()">+ Add Measurement Row</button>
-
-<div class="totalBox">
+<div class="total">
 Total Square Footage: <span id="total">0.00</span> sq ft
 </div>
 
 </div>
 
-
 <script>
+
+function generateRows(){
+
+let count = document.getElementById("rowCount").value
+let table = document.getElementById("tableBody")
+
+table.innerHTML = ""
+
+for(let i=1;i<=count;i++){
+
+let row = document.createElement("tr")
+
+row.innerHTML = `
+<td>${i}</td>
+<td><input type="number" class="inputField"></td>
+<td><input type="number" class="inputField"></td>
+<td class="result">0.00</td>
+`
+
+table.appendChild(row)
+
+}
+
+attachEvents()
+
+}
+
+function attachEvents(){
+
+let inputs = document.querySelectorAll(".inputField")
+
+inputs.forEach((input,index)=>{
+
+input.addEventListener("input",calculate)
+
+input.addEventListener("keydown",function(e){
+
+if(e.key === "Enter"){
+
+e.preventDefault()
+
+let next = inputs[index + 1]
+
+if(next){
+next.focus()
+}
+
+}
+
+})
+
+})
+
+}
 
 function calculate(){
 
-    let rows = document.querySelectorAll("#tableBody tr")
-    let total = 0
+let rows = document.querySelectorAll("#tableBody tr")
 
-    rows.forEach(row => {
+let total = 0
 
-        let A = row.children[1].children[0].value
-        let B = row.children[2].children[0].value
+rows.forEach(row => {
 
-        A = parseFloat(A) || 0
-        B = parseFloat(B) || 0
+let A = row.children[1].children[0].value
+let B = row.children[2].children[0].value
 
-        let C = (A * B) / 144
+A = parseFloat(A) || 0
+B = parseFloat(B) || 0
 
-        row.querySelector(".result").innerText = C.toFixed(2)
+let C = (A * B) / 144
 
-        total += C
-    })
+row.querySelector(".result").innerText = C.toFixed(2)
 
-    document.getElementById("total").innerText = total.toFixed(2)
-}
+total += C
 
-function addRow(){
+})
 
-    let table = document.getElementById("tableBody")
-    let rowCount = table.rows.length + 1
+document.getElementById("total").innerText = total.toFixed(2)
 
-    let row = table.insertRow()
-
-    row.innerHTML = `
-        <td>${rowCount}</td>
-        <td><input type="number" oninput="calculate()"></td>
-        <td><input type="number" oninput="calculate()"></td>
-        <td class="result">0.00</td>
-        <td><button class="deleteBtn" onclick="deleteRow(this)">Delete</button></td>
-    `
-}
-
-function deleteRow(btn){
-
-    let row = btn.parentNode.parentNode
-    row.remove()
-
-    updateRowNumbers()
-    calculate()
-}
-
-function updateRowNumbers(){
-
-    let rows = document.querySelectorAll("#tableBody tr")
-
-    rows.forEach((row,index)=>{
-        row.children[0].innerText = index + 1
-    })
 }
 
 </script>
